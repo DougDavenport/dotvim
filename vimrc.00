@@ -1,0 +1,593 @@
+
+set nocompatible
+
+set diffexpr=MyDiff()
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  let eq = ''
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      let cmd = '""' . $VIMRUNTIME . '\diff"'
+      let eq = '"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
+endfunction
+
+
+"
+"===============================================================================
+"
+" everything above here was from the original _vimrc
+"
+
+
+" empty scratch buffer on startup if no file was specified
+au VimEnter * if empty(expand('%')) | set buftype=nofile | endif
+
+
+"
+" setup
+"
+" copy $VIMRUNTIME\macros\matchit.vim to $VIM\vimfiles\plugin
+" copy $VIMRUNTIME\macros\matchit.txt to $VIM\vimfiles\doc
+"
+" :helptags $VIM\vimfiles\doc
+"
+
+"
+" NOTES...
+"
+" to convert tabs to spaces, :%retab
+" to remove all trailing white space, :%s/\s\+$//g
+"
+
+"
+" Map leader to ,
+" The leader character is your own personal modifier key, as g is Vim’s modifier key (when compared to vi). The default leader is \, but this is not located standardly on all keyboards and requires a pinky stretch in any case.
+"
+let mapleader = ","
+
+
+" Let's make it easy to edit this file (mnemonic for the key sequence is
+" 'e'dit 'v'imrc)
+nmap <silent> <leader>ev :e $MYVIMRC<cr>
+
+" And to source this file as well (mnemonic for the key sequence is
+" 's'ource 'v'imrc)
+nmap <silent> <leader>sv :so $MYVIMRC<cr>
+
+
+" Don't update the display while executing macros
+set lazyredraw
+
+" At least let yourself know what mode you're in
+set showmode
+
+" Show the current command in the lower right corner
+set showcmd
+
+" tell VIM to always put a status line in, even if there is only one window
+set laststatus=2
+
+" Set the status line the way i like it
+set stl=%f\ %m\ %r\ Line:%l/%L[%p%%]\ Col:%c\ Buf:%n\ [%b][0x%B]
+
+" Tabstops are 4 spaces
+set tabstop=4
+set shiftwidth=4
+" Turn tabs into spaces
+set expandtab
+set smarttab
+
+set autoindent
+
+" This is the timeout used while waiting for user input on a multi-keyed macro
+" or while just sitting and waiting for another key to be pressed measured
+" in milliseconds.
+"
+" i.e. for the ",d" command, there is a "timeoutlen" wait period between the
+"      "," key and the "d" key.  If the "d" key isn't pressed before the
+"      timeout expires, one of two things happens: The "," command is executed
+"      if there is one (which there isn't) or the command aborts.
+set timeoutlen=500
+
+" These commands open folds
+set foldopen=block,insert,jump,mark,percent,quickfix,search,tag,undo
+
+" Allow the cursor to go in to "invalid" places
+set virtualedit=all
+
+" get rid of the silly characters in window separators
+set fillchars="vert:' '"
+
+" Add ignorance of whitespace to diff
+set diffopt+=iwhite
+
+
+" Initial path seeding
+"set path=
+"set path+=/usr/local/include/**
+"set path+=/usr/include/**
+"set path+=~/code/**
+
+" Show all available VIM servers
+nmap <silent> <leader>ss :echo serverlist()<CR>
+
+" The following beast is something i didn't write... it will return the
+" syntax highlighting group that the current "thing" under the cursor
+" belongs to -- very useful for figuring out what to change as far as
+" syntax highlighting goes.
+nmap <silent> <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name")
+     \ . '> trans<' . synIDattr(synID(line("."),col("."),0),"name")
+     \ . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name")
+     \ . ">"<CR>
+
+" Run the command that was just yanked
+nmap <silent> <leader>rc :@"<cr>
+
+
+
+
+" Use smarte paste for preserving identation when copying and pasting
+"nmap <silent> <leader>p :SmartPaste<cr>
+"
+"""""""""""""""""""""""""""""""""""""""
+"           Clipboard Management      "
+"""""""""""""""""""""""""""""""""""""""
+"" Improve Vim copy for OSX terminal
+"if has('gui_running')
+"    set mousefocus          " Mouse can control splits
+"endif
+"Make sure paste mode is on before pasting
+"function! SmartPaste()
+"    set paste
+"    normal! p`[=`]
+"    set nopaste
+"endfunction
+"command! -bar            SmartPaste   :call SmartPaste()
+"
+
+
+
+
+" Make command line two lines high
+" to avoid prompt: 'Press ENTER or type command to continue'
+" see http://stackoverflow.com/questions/890802/vim-disable-press-enter-or-type-command-to-continue-prompt
+" for some other work arounds
+set cmdheight=2
+
+
+" Buffer navigation (Ctrl+Tab / Ctrl+Shift+Tab)
+nnoremap <C-Tab> :bnext<CR>
+nnoremap <C-S-Tab> :bprevious<CR>
+
+
+" Python section
+"autocmd FileType python set tabstop=4|set shiftwidth=4|set expandtab|setlocal smarttab|set et|set wm=4|set autoindent|set smartindent
+"autocmd FileType python source ~/.vim/plugin/python_fold.vim
+"map <f5> :w\|!python %<cr>
+"map <f9> :w\|!pylint %<cr>
+
+
+" treat .shl like .sh
+au BufNewFile,BufRead *.shl set filetype=sh
+
+
+let g:netrw_cygwin=0
+let g:netrw_silent=1
+" add PuTTY directory to PATH
+" run pagent to avoid username/password
+let g:netrw_scp_cmd = 'pscp.exe -q -batch'
+let g:netrw_sftp_cmd = 'psftp.exe -batch'
+let g:netrw_ssh_cmd = 'plink.exe -ssh -batch'
+
+
+" File-type highlighting and configuration.
+" Run :filetype (without args) to see what you may have
+" to turn on yourself, or just set them all to be sure.
+filetype on
+filetype plugin on
+filetype indent on
+
+
+" set font
+set guifont=Liberation_Mono:h14
+
+" Font Switching Binds
+map <C-F8> <ESC>:set guifont=Consolas:h10<CR>
+map <C-F9> <ESC>:set guifont=Consolas:h12<CR>
+map <C-F10> <ESC>:set guifont=Consolas:h14<CR>
+map <C-F11> <ESC>:set guifont=Consolas:h16<CR>
+map <C-F12> <ESC>:set guifont=Consolas:h18<CR>
+
+
+syntax on " NOTE -- overides 'hi cursor... -- put this before
+
+set background=dark
+"set color scheme
+":colorscheme railscasts
+:colorscheme xoria256
+"highlight cursor, current line, current column
+set cursorline cursorcolumn
+"hi cursorline guibg=#272420
+hi cursorline guibg=#000000
+"hi cursorcolumn guibg=#272420
+hi cursorcolumn guibg=#000000
+"hi cursor guibg=Green guifg=#272420
+
+set number
+set wrap
+"
+" Enable limited line numbering
+" It’s often useful to know where you are in a buffer, but full line numbering is distracting. Setting the option below is a good compromise:
+" Now in the bottom right corner of the status line there will be something like: 529, 35 68%, representing line 529, column 35, about 68% of the way to the end.
+"
+set ruler
+
+" Hide the mouse pointer while typing
+set mousehide
+
+" click to position the cursor and visual selection
+set mouse=a
+
+"set backup
+"set directory
+set nowritebackup
+set nobackup
+"set backupdir=.
+
+
+" ease of use keyboard mappings (why do I care about top/bottom of screen?)
+map H ^
+map L $
+
+
+" current directory is always matching the
+" content of the active window
+" NOTE - may interfere with some plugins
+set autochdir
+
+" remember some stuff after quiting vim:
+" marks, registers, searches, buffer list
+set viminfo='20,<50,s10,h,%
+
+
+" use console dialogs instead of popup dialogs for simple choices
+set guioptions+=c
+" Ctrl-F2 to toggle the menu and toolbar
+set guioptions-=T
+set guioptions-=m
+map <silent> <C-F2> :if &guioptions =~# 'T' <Bar>
+                        \set guioptions-=T <Bar>
+                        \set guioptions-=m <bar>
+                    \else <Bar>
+                        \set guioptions+=T <Bar>
+                        \set guioptions+=m <Bar>
+                    \endif<CR>
+
+
+" turn on spell checking
+set spell
+
+" from - Hacking Vim  A Cookbook to get the Most out of the Latest Vim Editor
+"
+function! FoldSpellBalloon()
+    let foldStart = foldclosed(v:beval_lnum )
+    let foldEnd   = foldclosedend(v:beval_lnum)
+    let lines = []
+    " Detect if we are in a fold 
+    if foldStart < 0
+        " Detect if we are on a misspelled word
+        let lines = spellsuggest( spellbadword(v:beval_text)[ 0 ], 5, 0 )
+    else
+        " we are in a fold
+        let numLines = foldEnd - foldStart + 1
+        " if we have too many lines in fold, show only the first 14
+        " and the last 14 lines
+        if ( numLines > 31 )
+            let lines = getline( foldStart, foldStart + 14 )
+            let lines += [ '-- Snipped ' . ( numLines - 30 ) . ' lines --' ]
+            let lines += getline( foldEnd - 14, foldEnd )
+        else
+            "less than 30 lines, lets show all of them
+            let lines = getline( foldStart, foldEnd )
+        endif
+    endif
+    " return result
+    return join( lines, has( "balloon_multiline" ) ? "\n" : " " )
+endfunction
+
+set balloonexpr=FoldSpellBalloon()
+set ballooneval
+set balloondelay=400
+
+" option toggles
+" see :help options
+
+" toggle search term highlighting
+nmap <silent> <leader>n :set invhls<CR>:set hls?<CR>
+
+" If the search term highlighting gets annoying, set a key to switch it off temporarily:
+nmap <silent> <leader><space> :silent :nohlsearch<CR>
+
+" toggle line wrapping
+nmap <silent> <leader>w :set invwrap<CR>:set wrap?<CR>
+
+" toggle spell checking
+nmap <silent> <leader>ll :set invspell<CR>:set spell?<CR>
+
+" Set up retabbing on a source file
+nmap <silent> <leader>rr :1,$retab<CR>
+
+" cd to the directory containing the file in the buffer
+nmap <silent> <leader>cd :lcd %:h<CR>
+
+" Make the directory that contains the file in the current buffer.
+" This is useful when you edit a file in a directory that doesn't
+" (yet) exist
+nmap <silent> <leader>md :!mkdir -p %:p:h<CR>
+
+
+" mappings for window management:
+
+" Move the cursor to the window left of the current one
+noremap <silent> <leader>h :wincmd h<cr>
+
+" Move the cursor to the window below the current one
+noremap <silent> <leader>j :wincmd j<cr>
+
+" Move the cursor to the window above the current one
+noremap <silent> <leader>k :wincmd k<cr>
+
+" Move the cursor to the window right of the current one
+noremap <silent> <leader>l :wincmd l<cr>
+
+
+" Go to previous (last accessed) window
+noremap <silent> <leader>sb :wincmd p<CR>
+" Decrease current window width by 10
+"noremap <silent> <C-F9>  :vertical resize -10<CR>
+" Increase current window height by 10
+"noremap <silent> <C-F10> :resize +10<CR>
+" Decrease current window height by 10
+"noremap <silent> <C-F11> :resize -10<CR>
+" Increase current window width by 10
+"noremap <silent> <C-F12> :vertical resize +10<CR>
+" Set width to 83
+noremap <silent> <leader>s8 :vertical resize 83<CR>
+
+
+" Close the window below this one
+noremap <silent> <leader>cj :wincmd j<cr>:close<cr>
+
+" Close the window above this one
+noremap <silent> <leader>ck :wincmd k<cr>:close<cr>
+
+" Close the window to the left of this one
+noremap <silent> <leader>ch :wincmd h<cr>:close<cr>
+
+" Close the window to the right of this one
+noremap <silent> <leader>cl :wincmd l<cr>:close<cr>
+
+" Close the current window
+noremap <silent> <leader>cc :close<cr>
+
+" Close the quickfix window
+noremap <silent> <leader>cw :cclose<CR>
+
+" Move the current window to the right of the main Vim window
+noremap <silent> <leader>ml <C-W>L
+
+" Move the current window to the top of the main Vim window
+noremap <silent> <leader>mk <C-W>K
+
+" Move the current window to the left of the main Vim window
+noremap <silent> <leader>mh <C-W>H
+
+" Move the current window to the bottom of the main Vim window
+noremap <silent> <leader>mj <C-W>J
+
+" 
+noremap <silent> <C-7> <C-W>>
+" 
+noremap <silent> <C-8> <C-W>+
+" 
+noremap <silent> <C-9> <C-W>+
+" 
+noremap <silent> <C-0> <C-W>>
+
+
+" Map CTRL-E to do what ',' used to do
+nnoremap <c-e> ,
+vnoremap <c-e> ,
+
+
+" Make horizontal scrolling easier
+nmap <silent> <C-o> 10zl
+nmap <silent> <C-i> 10zh
+
+
+
+" Highlight all instances of the current word under the cursor
+nmap <silent> ^ :setl hls<CR>:let @/="<C-r><C-w>"<CR>
+
+" Search the current file for what's currently in the search
+" register and display matches
+nmap <silent> <leader>gs
+     \ :vimgrep /<C-r>// %<CR>:ccl<CR>:cwin<CR><C-W>J:set nohls<CR>
+
+" Search the current file for the word under the cursor and display matches
+nmap <silent> <leader>gw
+     \ :vimgrep /<C-r><C-w>/ %<CR>:ccl<CR>:cwin<CR><C-W>J:set nohls<CR>
+
+" Search the current file for the WORD under the cursor and display matches
+nmap <silent> <leader>gW
+     \ :vimgrep /<C-r><C-a>/ %<CR>:ccl<CR>:cwin<CR><C-W>J:set nohls<CR>
+
+" Swap two words
+nmap <silent> gw :s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR>`'
+
+" Underline the current line with '='
+nmap <silent> <leader>ul :t.\|s/./=/g\|set nohls<cr>
+
+" Delete all buffers
+nmap <silent> <leader>da :exec "1," . bufnr('$') . "bd"<cr>
+
+" Syntax coloring lines that are too long just slows down the world
+set synmaxcol=2048
+
+
+
+
+
+
+"
+" from http://items.sjbach.com/319/configuring-vim-right
+"
+" Turn on hidden
+" allow Vim to manage multiple buffers effectively.
+" * The current buffer can be put to the background without writing to disk;
+" * When a background buffer becomes current again, marks and undo-history are remembered.
+"
+" Make sure that unsaved buffers that are to be put in the background are
+" allowed to go in there (ie. the "must save first" error doesn't come up)
+"
+set hidden
+"
+" Remap ` to '
+" These are very similar keys. Typing 'a will jump to the line in the current file marked with ma. However, `a will jump to the line and column marked with ma.
+" It is more useful in any case I can imagine, but it is located way off in the corner of the keyboard. The best way to handle this is just to swap them:
+"
+nnoremap ' `
+nnoremap ` '
+"
+" Keep a longer history
+" By default, Vim only remembers the last 20 commands and search patterns entered. It’s nice to boost this up:
+"
+set history=1000
+"
+" Enable extended % matching
+" The % key will switch between opening and closing brackets. By sourcing matchit.vim, it can also switch among e.g. if/elsif/else/end, between opening and closing XML tags, and more.
+" Note: runtime is the same as source except that the path is relative to the Vim installation directory.
+"
+runtime macros/matchit.vim
+"
+" Make file/command completion useful
+" By default, pressing <TAB> in command mode will choose the first possible completion with no indication of how many others there might be. The following configuration lets you see what your other options are:
+" To have the completion behave similarly to a shell, i.e. complete only up to the point of ambiguity (while still showing you what your options are), also add the following:
+"
+set wildmenu
+"set wildmode=list:longest
+set wildmode=list:longest,full
+set wildignore=*.o,*.*~
+"
+" Set the terminal title
+" A running gvim will always have a window title, but when vim is run within an xterm, by default it inherits the terminal’s current title.
+"
+set title
+"
+" Maintain more context around the cursor
+" When the cursor is moved outside the viewport of the current window, the buffer is scrolled by a single line. Setting the option below will start the scrolling three lines before the border, keeping more context around where you’re working.
+" Typing zz is also handy; it centers the window on the cursor without moving the cursor. (But watch out for ZZ!)
+"
+set scrolloff=3
+"
+" Intuitive backspacing in insert mode
+" Allow backspacing over indent, eol, and the start of an insert
+" 
+set backspace=indent,eol,start
+
+" Highlight search terms...
+set hlsearch
+set incsearch " ...dynamically as they are typed.
+" set the search scan to wrap around the end of the file
+set wrapscan
+
+"
+" Use case-smart searching
+" These two options, when set together, will make /-style searches case-sensitive only if there is a capital letter in the search expression. *-style searches continue to be consistently case-sensitive.
+"
+set ignorecase
+set smartcase
+"
+" The filetype lines enable type-specific configuration, such as knowledge of syntax and indentation. E.g. foo.c will be opened with Vim’s pre-configured C settings, and bar.py will be opened with Python settings.
+"
+" Catch trailing whitespace
+" The following will make tabs and trailing spaces visible when requested:
+" By default whitespace will be hidden, but now it can be toggled with ,s.
+"
+set listchars=tab:>-,trail:·,eol:$
+nmap <silent> <leader>s :set nolist!<CR>
+"
+" Stifle many interruptive prompts
+" The “Press ENTER or type command to continue” prompt is jarring and usually unnecessary. You can shorten command-line text and other info tokens with, e.g.:
+" See :help shortmess for the breakdown of what this changes. You can also pare things down further if you like.
+"
+set shortmess=atI
+"
+" Stop distracting your co-workers
+" Vim is a little surly, beeping at you at every chance. You can either find a way to turn off the bell completely, or more usefully, make the bell visual:
+" Instead of emitting an obnoxious noise, the window will flash very briefly. This is similar to screen’s interpretation of the bell in its default configuration.
+"
+set visualbell
+set noerrorbells
+"
+" use confirm instead of aborting an action
+set confirm
+
+set showmatch
+set matchtime=5
+
+set sidescroll=1
+set sidescrolloff=3
+
+
+" Alternatives to ESC:
+"imap jkl <ESC>
+"imap jlk <ESC>
+"imap kjl <ESC>
+"imap klj <ESC>
+"imap lkj <ESC>
+"imap ljk <ESC>
+"imap ;l <ESC>
+
+" "Very magic" regexes in searches
+"nnoremap / /\v
+"nnoremap ? ?\v
+
+
+
+
+" Open and close all the three plugins on the same time
+nmap <F9>   :TrinityToggleAll<CR>
+
+" Open and close the srcexpl.vim separately
+nmap <F10>   :TrinityToggleSourceExplorer<CR>
+
+" Open and close the taglist.vim separately
+nmap <F11>  :TrinityToggleTagList<CR>
+
+" Open and close the NERD_tree.vim separately
+nmap <F12>  :TrinityToggleNERDTree<CR> 
+
+
+
+" setup backup file for scratch.vim
+let g:scratchBackupFile = $VIM . '\scratch.txt'
+
+
+
+
