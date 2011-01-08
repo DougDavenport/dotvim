@@ -1,0 +1,1 @@
+/home/davenport/.vim/bundle/pathogen/autoload/pathogen.vim
