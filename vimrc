@@ -1,7 +1,39 @@
+
 " actvate pathogen
 " It is essential that these lines are called before enabling filetype detection, so I would recommend putting them at the top of your vimrc file.
+filetype off " Needed so pathogen also loads ftdetect plugins.
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
+" Re-enable per filetype plugins and indents after loading pathogen plugin
+filetype plugin indent on
+
+
+" In GVIM
+if has("gui_running")
+    set guifont=Liberation\ Mono\ 8" use this font
+    set lines=75 " height = 50 lines
+    set columns=180 " width = 100 columns
+    set background=dark " adapt colors for background
+    set keymodel=
+    set mousehide
+"    colorscheme underwater-mod
+"    colorscheme molokai
+    colorscheme xoria256
+
+    " To set the toolbars off (icons on top of the screen)
+    set guioptions-=T
+else
+    set background=dark " adapt colors for dark background
+    colorscheme xoria256
+    set t_Co=256
+endif
+
+
+" ==================================================
+" Basic Settings
+" ==================================================
+let mapleader="," " change the leader to be a comma vs slash
+
 
 
 " URL: http://vim.wikia.com/wiki/Example_vimrc
@@ -153,11 +185,9 @@ nnoremap <C-L> :nohl<CR><C-L>
 "
 "
 
-:colorscheme xoria256
-
 set cursorline cursorcolumn
-hi cursorline guibg=#000000
-hi cursorcolumn guibg=#000000
+hi cursorline guibg=#000000 ctermbg=black
+hi cursorcolumn guibg=#000000 ctermbg=black
 
 set guifont=DejaVu\ Sans\ Mono\ 14
 
@@ -180,3 +210,4 @@ endfunction
 :autocmd GUIEnter * call Maximize_Window()
 
 
+map <leader>t :NERDTreeToggle<CR>
