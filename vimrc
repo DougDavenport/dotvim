@@ -211,3 +211,7 @@ endfunction
 
 
 map <leader>t :NERDTreeToggle<CR>
+
+map <leader>v :cal VimCommanderToggle()<CR> 
+
+
